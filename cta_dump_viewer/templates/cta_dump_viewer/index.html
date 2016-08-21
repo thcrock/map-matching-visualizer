@@ -4,16 +4,39 @@
 	<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
 	<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<style>
+		html, body {
+			height:100%;
+			margin:0;
+		}
+	</style>
   </head>
   <body>
-	  <div id="mapid"></div>
+	  <div id="container">
+		<div id="mapid"></div>
+	  </div>
 	  <script>
+		var mymap;
+		function resizeMap() {
+			height = $("body").outerHeight();
+			$("#mapid").height( height );
+			mymap.invalidateSize();
+			return height;
+		}
 		$(document).ready(function() {
-			var mymap = L.map('mapid').setView([41.87, -87.62], 13);
+			mymap = L.map('mapid').setView([41.87, -87.62], 13);
 			var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				maxZoom: 19,
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			}).addTo(mymap);
+			resizeMap();
+			var rawGeojson = {{raw_geojson}};
+			var rawStyle = {
+				"color": "#000000",
+				"weight": 2,
+				"opacity": 1.0
+			};
+			L.geoJson(rawGeojson, { style: rawStyle }).addTo(mymap);
 		});
 	  </script>
   </body>

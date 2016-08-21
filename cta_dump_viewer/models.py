@@ -15,3 +15,6 @@ class Reading(models.Model):
     passengers_in = models.FloatField()
     latitude = models.CharField(max_length=10)
     longitude = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ('time',)
