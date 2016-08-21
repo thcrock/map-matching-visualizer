@@ -1,5 +1,5 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def index(request):
-    return HttpResponse('Eventually there will be a map here')
+    return render(request, 'cta_dump_viewer/index.html')

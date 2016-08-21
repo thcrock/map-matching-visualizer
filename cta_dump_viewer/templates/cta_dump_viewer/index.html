@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+	<script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  </head>
+  <body>
+	  <div id="mapid"></div>
+	  <script>
+		$(document).ready(function() {
+			var mymap = L.map('mapid').setView([41.87, -87.62], 13);
+			var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 19,
+				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			}).addTo(mymap);
+		});
+	  </script>
+  </body>
+</html>

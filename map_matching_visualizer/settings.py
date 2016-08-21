@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cta_dump_viewer'
 ]
 
 MIDDLEWARE_CLASSES = [
