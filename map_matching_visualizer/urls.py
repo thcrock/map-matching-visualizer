@@ -16,5 +16,5 @@ Including another URLconf
 from django.conf.urls import include, url
 
 urlpatterns = [
-    url(r'^cta_dump/', include('cta_dump.urls'))
+    url(r'^cta_dump_viewer/', include('cta_dump_viewer.urls'))
 ]
