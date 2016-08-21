@@ -1,0 +1,19 @@
+name: map_matching_visualizer
+dependencies:
+- auto::pymlconf=0.3.9=py27_0
+- auto::setuptools=3.3=py27_0
+- auto::wheel=0.22.0=py27_0
+- openssl=1.0.2h=1
+- pip=8.1.2=py27_0
+- python=2.7.12=1
+- pyyaml=3.11=py27_4
+- readline=6.2=2
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- yaml=0.1.6=0
+- zlib=1.2.8=3
+- pip:
+  - pymlconf==0.3.9
+  - wheel==0.22.0
+prefix: /media/shared/conda/envs/map_matching_visualizer
+
