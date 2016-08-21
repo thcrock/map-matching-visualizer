@@ -3,17 +3,37 @@ dependencies:
 - auto::pymlconf=0.3.9=py27_0
 - auto::setuptools=3.3=py27_0
 - auto::wheel=0.22.0=py27_0
+- backports=1.0=py27_0
+- decorator=4.0.10=py27_0
 - django=1.9.5=py27_0
+- get_terminal_size=1.0.0=py27_0
+- ipython=5.1.0=py27_0
+- ipython_genutils=0.1.0=py27_0
 - openssl=1.0.2h=1
+- path.py=8.2.1=py27_0
+- pathlib2=2.1.0=py27_0
+- pexpect=4.0.1=py27_0
+- pickleshare=0.7.3=py27_0
 - pip=8.1.2=py27_0
+- prompt_toolkit=1.0.3=py27_0
+- ptyprocess=0.5.1=py27_0
+- pygments=2.1.3=py27_0
 - python=2.7.12=1
 - pyyaml=3.11=py27_4
 - readline=6.2=2
+- requests=2.11.1=py27_0
+- simplegeneric=0.8.1=py27_1
+- six=1.10.0=py27_0
 - sqlite=3.13.0=0
 - tk=8.5.18=0
+- traitlets=4.2.2=py27_0
+- wcwidth=0.1.7=py27_0
 - yaml=0.1.6=0
 - zlib=1.2.8=3
 - pip:
+  - backports.shutil-get-terminal-size==1.0.0
+  - ipython-genutils==0.1.0
+  - prompt-toolkit==1.0.3
   - pymlconf==0.3.9
   - wheel==0.22.0
 prefix: /media/shared/conda/envs/map_matching_visualizer
