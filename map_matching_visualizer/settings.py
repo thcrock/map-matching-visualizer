@@ -11,10 +11,22 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import pymlconf
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+GLOBAL_CONFIG_DIR = '/etc/map_matching_visualizer'
+# Load configuration from conf.d directories #
+# default configuration in repo:
+config = pymlconf.ConfigManager(
+    dirs=[os.path.join(BASE_DIR, 'map_matching_visualizer', 'conf.d')]
+)
+if os.path.isdir(GLOBAL_CONFIG_DIR):
+    config.load_dirs(
+        [os.path.join(GLOBAL_CONFIG_DIR, 'conf.d')]
+    )
+locals().update((key.upper(), value) for key, value in config.items())
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/

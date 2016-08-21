@@ -3,6 +3,7 @@ dependencies:
 - auto::pymlconf=0.3.9=py27_0
 - auto::setuptools=3.3=py27_0
 - auto::wheel=0.22.0=py27_0
+- django=1.9.5=py27_0
 - openssl=1.0.2h=1
 - pip=8.1.2=py27_0
 - python=2.7.12=1
