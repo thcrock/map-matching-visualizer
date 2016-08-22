@@ -37,6 +37,20 @@
 				"opacity": 1.0
 			};
 			L.geoJson(rawGeojson, { style: rawStyle }).addTo(mymap);
+			var snappedGeojson = {{snapped_geojson}};
+			var snappedStyle = {
+				"color": "#FF0000",
+				"weight": 2,
+				"opacity": 1.0
+			};
+			L.geoJson(snappedGeojson, { style: snappedStyle }).addTo(mymap);
+			var waysGeojson = {{ways_geojson}};
+			var waysStyle = {
+				"color": "#0000FF",
+				"weight": 3,
+				"opacity": 1.0
+			};
+			L.geoJson(waysGeojson, { style: waysStyle }).addTo(mymap);
 		});
 	  </script>
   </body>
