@@ -18,14 +18,3 @@ class Reading(models.Model):
 
     class Meta:
         ordering = ('time',)
-
-
-class OsmWayNode(models.Model):
-    osm_node_id = models.BigIntegerField(primary_key=True)
-    osm_way_id = models.BigIntegerField()
-    latitude = models.CharField(max_length=10)
-    longitude = models.CharField(max_length=10)
-
-    class Meta:
-        db_table = 'planet_osm_nodes'
-        managed = False
