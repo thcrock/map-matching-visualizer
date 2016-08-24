@@ -28,6 +28,7 @@ def lookup_way_nodes(ways):
     query = """
 select
     way_id id,
+    node_id,
     st_x(st_transform(
         st_geomfromtext('point('||n.lon/100||' '||n.lat/100||')', 3785),
         4326
@@ -51,6 +52,9 @@ select
     cursor.execute(query)
     rows = cursor.fetchall()
     results = defaultdict(list)
-    for way_id, lon, lat in rows:
-        results[way_id].append((lon, lat))
-    return results.values()
+    for way_id, node_id, lon, lat in rows:
+        results[way_id].append({
+            'coordinates': (lon, lat),
+            'node_id': node_id
+        })
+    return results

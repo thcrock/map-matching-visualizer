@@ -9,6 +9,18 @@
 			height:100%;
 			margin:0;
 		}
+		.info {
+			padding: 6px 8px;
+			font: 14px/16px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+		.info h4 {
+			margin: 0 0 5px;
+			color: #777;
+		}
 	</style>
   </head>
   <body>
@@ -17,11 +29,37 @@
 	  </div>
 	  <script>
 		var mymap;
+		var geojsonLayer;
+		var info;
 		function resizeMap() {
 			height = $("body").outerHeight();
 			$("#mapid").height( height );
 			mymap.invalidateSize();
 			return height;
+		}
+
+		function highlightWay(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				"color": "#0000FF",
+				"weight": 10,
+				"opacity": 1.0
+			});
+			info.update(layer.feature.properties);
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+		}
+		function resetHighlight(e) {
+			geojsonLayer.resetStyle(e.target);
+			info.update();
+		}
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightWay,
+				mouseout: resetHighlight
+			})
 		}
 		$(document).ready(function() {
 			mymap = L.map('mapid').setView([41.87, -87.62], 13);
@@ -50,7 +88,27 @@
 				"weight": 3,
 				"opacity": 1.0
 			};
-			L.geoJson(waysGeojson, { style: waysStyle }).addTo(mymap);
+			geojsonLayer = L.geoJson(waysGeojson, {
+				style: waysStyle,
+				onEachFeature: onEachFeature
+			}).addTo(mymap);
+
+			info = L.control();
+
+			info.onAdd = function (map) {
+				this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+				this.update();
+				return this._div;
+			};
+
+			// method that we will use to update the control based on feature properties passed
+			info.update = function (props) {
+				this._div.innerHTML = '<h4>Way Info</h4>' +  (props ?
+						'Tags: ' + props.tags + '<br />Way id: ' + props.way_id + '<br />Nodes: ' + props.node_ids.length
+					: 'Hover over a way');
+			};
+
+			info.addTo(mymap);
 		});
 	  </script>
   </body>

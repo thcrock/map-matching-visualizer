@@ -14,6 +14,17 @@ def points(serial_number):
     ]
 
 
+def build_way_feature(way_id, rows, lookup_data):
+    return geojson.Feature(
+        geometry=geojson.LineString([row['coordinates'] for row in rows]),
+        properties={
+            'node_ids': [row['node_id'] for row in rows],
+            'way_id': way_id,
+            'tags': lookup_data.tags
+        }
+    )
+
+
 def index(request):
     raw_points = points(48661914)
     raw = geojson.LineString(raw_points)
@@ -25,12 +36,12 @@ def index(request):
     nodes = osrm_matcher.extract_nodes(match_output)
     node_pairs = osrm_matcher.generate_node_pairs(nodes)
 
-    ways_nodes = osm_querier.lookup_way_nodes(
-        osm_querier.lookup_ways(node_pairs)
-    )
-    ways = geojson.GeometryCollection([
-        geojson.LineString(way_nodes)
-        for way_nodes in ways_nodes
+    ways = osm_querier.lookup_ways(node_pairs)
+    way_lookup = dict((o.pk, o) for o in ways)
+    ways_nodes = osm_querier.lookup_way_nodes(ways)
+    way_features = geojson.FeatureCollection([
+        build_way_feature(way_id, data, way_lookup[way_id])
+        for way_id, data in ways_nodes.iteritems()
     ])
     return render(
         request,
@@ -38,6 +49,6 @@ def index(request):
         Context({
             'raw_geojson': mark_safe(raw),
             'snapped_geojson': mark_safe(snapped),
-            'ways_geojson': mark_safe(ways)
+            'ways_geojson': mark_safe(way_features)
         })
     )
