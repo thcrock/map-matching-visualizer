@@ -5,10 +5,12 @@ from django.db import connection
 
 def lookup_ways(node_pairs):
     node_pairs_query = ' union all '.join(
-        'select {} n1, {} n2'.format(n1, n2) for n1, n2 in node_pairs
+        'select {} n1, {} n2, {} rp1, {} rp2'
+        .format(n1[0], n2[0], n1[1], n2[1])
+        for n1, n2 in node_pairs
     )
     query = """
-        select id, n1, n2, tags, nodes
+        select id, n1, n2, ARRAY[rp1, rp2], tags, nodes
         from planet_osm_ways
         join (
             {}
@@ -18,7 +20,10 @@ def lookup_ways(node_pairs):
             nodes @> ARRAY[n2::bigint]
         )
     """.format(node_pairs_query)
-    return list(OsmWay.objects.raw(query))
+    cursor = connection.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    return [OsmWay(row[0], row[3], row[4], row[5]) for row in rows]
 
 
 def lookup_way_nodes(ways):

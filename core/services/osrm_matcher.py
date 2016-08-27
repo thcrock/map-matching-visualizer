@@ -51,8 +51,9 @@ def snapped_points(output):
 
 
 def extract_nodes(output):
+    node_lookup = set()
     nodes = []
-    for tracepoint in output['tracepoints']:
+    for index, tracepoint in enumerate(output['tracepoints']):
         if tracepoint:
             route = output['matchings'][tracepoint['matchings_index']]
             legs = route['legs']
@@ -61,8 +62,9 @@ def extract_nodes(output):
             leg = legs[tracepoint['waypoint_index']]
             leg_nodes = leg['annotation']['nodes']
             for node in leg_nodes:
-                if node not in nodes:
-                    nodes.append(node)
+                if node not in node_lookup:
+                    node_lookup.add(node)
+                    nodes.append((node, index))
     return nodes
 
 

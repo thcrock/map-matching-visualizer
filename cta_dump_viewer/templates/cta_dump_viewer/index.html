@@ -30,7 +30,9 @@
 	  <script>
 		var mymap;
 		var geojsonLayer;
+		var rawLayer;
 		var info;
+		var rawLookupLayer = {};
 		function resizeMap() {
 			height = $("body").outerHeight();
 			$("#mapid").height( height );
@@ -47,19 +49,32 @@
 				"opacity": 1.0
 			});
 			info.update(layer.feature.properties);
+			var currentWayId = layer.feature.properties.way_id;
+			rawLookupLayer[currentWayId].setStyle({
+				"color": "#000000",
+				"weight": 10,
+				"opacity": 1.0
+			});
 			if (!L.Browser.ie && !L.Browser.opera) {
 				layer.bringToFront();
 			}
 		}
 		function resetHighlight(e) {
-			geojsonLayer.resetStyle(e.target);
+			var layer = e.target;
+			var currentWayId = layer.feature.properties.way_id;
+			geojsonLayer.resetStyle(layer);
+			rawLayer.resetStyle(rawLookupLayer[currentWayId]);
 			info.update();
 		}
-		function onEachFeature(feature, layer) {
+		function onEachWayFeature(feature, layer) {
 			layer.on({
 				mouseover: highlightWay,
 				mouseout: resetHighlight
 			})
+		}
+
+		function onEachRawFeature(feature, layer) {
+			rawLookupLayer[feature.properties.way_id] = layer;
 		}
 		$(document).ready(function() {
 			mymap = L.map('mapid').setView([41.87, -87.62], 13);
@@ -74,7 +89,24 @@
 				"weight": 2,
 				"opacity": 1.0
 			};
-			L.geoJson(rawGeojson, { style: rawStyle }).addTo(mymap);
+			rawLayer = L.geoJson(rawGeojson, {
+				style: rawStyle,
+				pointToLayer: function(feature, latlng) {
+					return new L.CircleMarker(latlng, {radius: 5, fillOpacity: 0.85});
+				},
+				onEachFeature: onEachRawFeature
+			}).addTo(mymap);
+
+			var rawLineGeojson = {{rawline_geojson}}
+			var rawLineStyle = {
+				"color": "#000000",
+				"weight": 1,
+				"opacity": 1.0
+			};
+			L.geoJson(rawLineGeojson, {
+				style: rawLineStyle
+			}).addTo(mymap);
+
 			var snappedGeojson = {{snapped_geojson}};
 			var snappedStyle = {
 				"color": "#FF0000",
@@ -90,7 +122,7 @@
 			};
 			geojsonLayer = L.geoJson(waysGeojson, {
 				style: waysStyle,
-				onEachFeature: onEachFeature
+				onEachFeature: onEachWayFeature
 			}).addTo(mymap);
 
 			info = L.control();

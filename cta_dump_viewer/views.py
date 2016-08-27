@@ -25,9 +25,17 @@ def build_way_feature(way_id, rows, lookup_data):
     )
 
 
+def build_raw_feature(way_id, raw_points, raw_indices):
+    return geojson.Feature(
+        geometry=geojson.MultiPoint([raw_points[i] for i in raw_indices]),
+        properties={
+            'way_id': way_id
+        }
+    )
+
+
 def index(request):
     raw_points = points(48661914)
-    raw = geojson.LineString(raw_points)
     match_output = osrm_matcher.match_response(raw_points)
     snapped = geojson.GeometryCollection([
         geojson.Point(coord)
@@ -37,8 +45,13 @@ def index(request):
     node_pairs = osrm_matcher.generate_node_pairs(nodes)
 
     ways = osm_querier.lookup_ways(node_pairs)
-    way_lookup = dict((o.pk, o) for o in ways)
+    way_lookup = dict((o.id, o) for o in ways)
     ways_nodes = osm_querier.lookup_way_nodes(ways)
+
+    raw_features = geojson.FeatureCollection([
+        build_raw_feature(way_id, raw_points, way.raw_indices)
+        for way_id, way in way_lookup.iteritems()
+    ])
     way_features = geojson.FeatureCollection([
         build_way_feature(way_id, data, way_lookup[way_id])
         for way_id, data in ways_nodes.iteritems()
@@ -47,7 +60,8 @@ def index(request):
         request,
         'cta_dump_viewer/index.html',
         Context({
-            'raw_geojson': mark_safe(raw),
+            'raw_geojson': mark_safe(raw_features),
+            'rawline_geojson': mark_safe(geojson.LineString(raw_points)),
             'snapped_geojson': mark_safe(snapped),
             'ways_geojson': mark_safe(way_features)
         })
