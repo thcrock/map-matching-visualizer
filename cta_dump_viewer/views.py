@@ -34,13 +34,19 @@ def build_raw_feature(way_id, raw_points, raw_indices):
     )
 
 
+def build_snapped_feature(way_id, snapped_points, indices):
+    return geojson.Feature(
+        geometry=geojson.MultiPoint([snapped_points[i] for i in indices]),
+        properties={
+            'way_id': way_id
+        }
+    )
+
+
 def index(request):
     raw_points = points(48661914)
     match_output = osrm_matcher.match_response(raw_points)
-    snapped = geojson.GeometryCollection([
-        geojson.Point(coord)
-        for coord in osrm_matcher.snapped_points(match_output)
-    ])
+    snapped_points = osrm_matcher.snapped_points(match_output)
     nodes = osrm_matcher.extract_nodes(match_output)
     node_pairs = osrm_matcher.generate_node_pairs(nodes)
 
@@ -50,6 +56,10 @@ def index(request):
 
     raw_features = geojson.FeatureCollection([
         build_raw_feature(way_id, raw_points, way.raw_indices)
+        for way_id, way in way_lookup.iteritems()
+    ])
+    snapped_features = geojson.FeatureCollection([
+        build_snapped_feature(way_id, snapped_points, way.raw_indices)
         for way_id, way in way_lookup.iteritems()
     ])
     way_features = geojson.FeatureCollection([
@@ -62,7 +72,8 @@ def index(request):
         Context({
             'raw_geojson': mark_safe(raw_features),
             'rawline_geojson': mark_safe(geojson.LineString(raw_points)),
-            'snapped_geojson': mark_safe(snapped),
+            'snapped_geojson': mark_safe(snapped_features),
+            'snappedline_geojson': mark_safe(geojson.LineString(snapped_points)),
             'ways_geojson': mark_safe(way_features)
         })
     )

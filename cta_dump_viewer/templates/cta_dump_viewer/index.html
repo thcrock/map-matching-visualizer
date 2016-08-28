@@ -21,6 +21,18 @@
 			margin: 0 0 5px;
 			color: #777;
 		}
+
+		.legend {
+			line-height: 20px;
+			color: #555;
+		}
+		.legend i {
+			width: 18px;
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+			opacity: 0.7;
+		}
 	</style>
   </head>
   <body>
@@ -33,6 +45,8 @@
 		var rawLayer;
 		var info;
 		var rawLookupLayer = {};
+		var snappedLayer;
+		var snappedLookupLayer = {};
 		function resizeMap() {
 			height = $("body").outerHeight();
 			$("#mapid").height( height );
@@ -45,13 +59,18 @@
 
 			layer.setStyle({
 				"color": "#0000FF",
-				"weight": 10,
+				"weight": 5,
 				"opacity": 1.0
 			});
 			info.update(layer.feature.properties);
 			var currentWayId = layer.feature.properties.way_id;
 			rawLookupLayer[currentWayId].setStyle({
 				"color": "#000000",
+				"weight": 10,
+				"opacity": 1.0
+			});
+			snappedLookupLayer[currentWayId].setStyle({
+				"color": "#FF0000",
 				"weight": 10,
 				"opacity": 1.0
 			});
@@ -64,6 +83,7 @@
 			var currentWayId = layer.feature.properties.way_id;
 			geojsonLayer.resetStyle(layer);
 			rawLayer.resetStyle(rawLookupLayer[currentWayId]);
+			snappedLayer.resetStyle(snappedLookupLayer[currentWayId]);
 			info.update();
 		}
 		function onEachWayFeature(feature, layer) {
@@ -75,6 +95,10 @@
 
 		function onEachRawFeature(feature, layer) {
 			rawLookupLayer[feature.properties.way_id] = layer;
+		}
+
+		function onEachSnappedFeature(feature, layer) {
+			snappedLookupLayer[feature.properties.way_id] = layer;
 		}
 		$(document).ready(function() {
 			mymap = L.map('mapid').setView([41.87, -87.62], 13);
@@ -113,7 +137,22 @@
 				"weight": 2,
 				"opacity": 1.0
 			};
-			L.geoJson(snappedGeojson, { style: snappedStyle }).addTo(mymap);
+			snappedLayer = L.geoJson(snappedGeojson, {
+				style: snappedStyle,
+				pointToLayer: function(feature, latlng) {
+					return new L.CircleMarker(latlng, {radius: 5, fillOpacity: 0.85});
+				},
+				onEachFeature: onEachSnappedFeature
+			}).addTo(mymap);
+			var snappedLineGeojson = {{snappedline_geojson}}
+			var snappedLineStyle = {
+				"color": "#FF0000",
+				"weight": 1,
+				"opacity": 1.0
+			};
+			L.geoJson(snappedLineGeojson, {
+				style: snappedLineStyle
+			}).addTo(mymap);
 			var waysGeojson = {{ways_geojson}};
 			var waysStyle = {
 				"color": "#0000FF",
@@ -141,6 +180,24 @@
 			};
 
 			info.addTo(mymap);
+
+			var legend = L.control({ position: 'bottomright' });
+
+			legend.onAdd = function (map) {
+				var div = L.DomUtil.create('div', 'info legend'),
+					labels = [
+						{ color: '#000000', type: 'raw' },
+						{ color: '#FF0000', type: 'snap' },
+						{ color: '#0000FF', type: 'ways' },
+					];
+				for (var i = 0; i < labels.length; i++) {
+					div.innerHTML +=
+					'<div><i style="background: ' + labels[i].color + '"></i> ' + labels[i].type + '</div>';
+				}
+				return div;
+			};
+
+			legend.addTo(mymap);
 		});
 	  </script>
   </body>
