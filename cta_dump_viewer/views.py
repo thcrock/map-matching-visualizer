@@ -3,8 +3,13 @@ from django.template import Context
 from django.utils.safestring import mark_safe
 import geojson
 from cta_dump_viewer.models import Reading
-import core.services.osrm_matcher as osrm_matcher
+import core.matchers.osrm
 import core.services.osm_querier as osm_querier
+
+
+AVAILABLE_MATCHERS = {
+    'osrm': core.matchers.osrm.OsrmMatcher
+}
 
 
 def points(serial_number):
@@ -45,10 +50,9 @@ def build_snapped_feature(way_id, snapped_points, indices):
 
 def index(request):
     raw_points = points(48661914)
-    match_output = osrm_matcher.match_response(raw_points)
-    snapped_points = osrm_matcher.snapped_points(match_output)
-    nodes = osrm_matcher.extract_nodes(match_output)
-    node_pairs = osrm_matcher.generate_node_pairs(nodes)
+    matcher = AVAILABLE_MATCHERS['osrm'](raw_points)
+    snapped_points = matcher.snapped_points()
+    node_pairs = matcher.generate_node_pairs()
 
     ways = osm_querier.lookup_ways(node_pairs)
     way_lookup = dict((o.id, o) for o in ways)
