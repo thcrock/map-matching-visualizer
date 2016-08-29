@@ -4,11 +4,15 @@ from django.utils.safestring import mark_safe
 import geojson
 from cta_dump_viewer.models import Reading
 import core.matchers.osrm
-import core.services.osm_querier as osm_querier
+import core.way_queriers.all
 
 
 AVAILABLE_MATCHERS = {
     'osrm': core.matchers.osrm.OsrmMatcher
+}
+
+AVAILABLE_WAY_QUERIERS = {
+    'all': core.way_queriers.all.AllWayQuerier
 }
 
 
@@ -54,9 +58,8 @@ def index(request):
     snapped_points = matcher.snapped_points()
     node_pairs = matcher.generate_node_pairs()
 
-    ways = osm_querier.lookup_ways(node_pairs)
-    way_lookup = dict((o.id, o) for o in ways)
-    ways_nodes = osm_querier.lookup_way_nodes(ways)
+    way_querier = AVAILABLE_WAY_QUERIERS['all'](node_pairs)
+    way_lookup = way_querier.way_lookup()
 
     raw_features = geojson.FeatureCollection([
         build_raw_feature(way_id, raw_points, way.raw_indices)
@@ -68,7 +71,7 @@ def index(request):
     ])
     way_features = geojson.FeatureCollection([
         build_way_feature(way_id, data, way_lookup[way_id])
-        for way_id, data in ways_nodes.iteritems()
+        for way_id, data in way_querier.ways_nodes.iteritems()
     ])
     return render(
         request,
