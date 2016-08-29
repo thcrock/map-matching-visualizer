@@ -41,11 +41,12 @@
 	  </div>
 	  <script>
 		var mymap;
-		var geojsonLayer;
+		var wayLayer;
 		var rawLayer;
 		var info;
-		var rawLookupLayer = {};
 		var snappedLayer;
+		var wayLookupLayer = {};
+		var rawLookupLayer = {};
 		var snappedLookupLayer = {};
 		function resizeMap() {
 			height = $("body").outerHeight();
@@ -56,37 +57,45 @@
 
 		function highlightWay(e) {
 			var layer = e.target;
+			var currentWayId = layer.feature.properties.way_id;
 
-			layer.setStyle({
+			var raw = rawLookupLayer[currentWayId];
+			var snapped = snappedLookupLayer[currentWayId];
+			var way = wayLookupLayer[currentWayId];
+
+			way.setStyle({
 				"color": "#0000FF",
 				"weight": 5,
 				"opacity": 1.0
 			});
-			info.update(layer.feature.properties);
-			var currentWayId = layer.feature.properties.way_id;
-			rawLookupLayer[currentWayId].setStyle({
+			info.update(way.feature.properties);
+			raw.setStyle({
 				"color": "#000000",
 				"weight": 10,
 				"opacity": 1.0
 			});
-			snappedLookupLayer[currentWayId].setStyle({
+			snapped.setStyle({
 				"color": "#FF0000",
 				"weight": 10,
 				"opacity": 1.0
 			});
 			if (!L.Browser.ie && !L.Browser.opera) {
+				way.bringToFront();
+				raw.bringToFront();
+				snapped.bringToFront();
 				layer.bringToFront();
 			}
 		}
 		function resetHighlight(e) {
 			var layer = e.target;
 			var currentWayId = layer.feature.properties.way_id;
-			geojsonLayer.resetStyle(layer);
+			wayLayer.resetStyle(wayLookupLayer[currentWayId]);
 			rawLayer.resetStyle(rawLookupLayer[currentWayId]);
 			snappedLayer.resetStyle(snappedLookupLayer[currentWayId]);
 			info.update();
 		}
 		function onEachWayFeature(feature, layer) {
+			wayLookupLayer[feature.properties.way_id] = layer;
 			layer.on({
 				mouseover: highlightWay,
 				mouseout: resetHighlight
@@ -95,10 +104,18 @@
 
 		function onEachRawFeature(feature, layer) {
 			rawLookupLayer[feature.properties.way_id] = layer;
+			layer.on({
+				mouseover: highlightWay,
+				mouseout: resetHighlight
+			})
 		}
 
 		function onEachSnappedFeature(feature, layer) {
 			snappedLookupLayer[feature.properties.way_id] = layer;
+			layer.on({
+				mouseover: highlightWay,
+				mouseout: resetHighlight
+			})
 		}
 		$(document).ready(function() {
 			mymap = L.map('mapid').setView([41.87, -87.62], 13);
@@ -159,7 +176,7 @@
 				"weight": 3,
 				"opacity": 1.0
 			};
-			geojsonLayer = L.geoJson(waysGeojson, {
+			wayLayer = L.geoJson(waysGeojson, {
 				style: waysStyle,
 				onEachFeature: onEachWayFeature
 			}).addTo(mymap);
