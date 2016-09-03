@@ -2,12 +2,16 @@ name: map_matching_visualizer
 dependencies:
 - IOOS::geojson=1.3.2=py27_0
 - auto::pymlconf=0.3.9=py27_0
-- auto::setuptools=3.3=py27_0
 - auto::wheel=0.22.0=py27_0
 - backports=1.0=py27_0
+- conda-forge::coverage=4.2=py27_0
+- conda-forge::pytest-cov=2.3.1=py27_0
+- conda-forge::pytest-django=2.9.1=py27_0
+- cookies=2.2.1=py27_0
 - curl=7.49.0=1
 - decorator=4.0.10=py27_0
 - django=1.9.5=py27_0
+- funcsigs=1.0.2=py27_0
 - gdal=2.1.0=py27_0
 - geos=3.5.0=0
 - geotiff=1.4.1=0
@@ -23,10 +27,13 @@ dependencies:
 - libnetcdf=4.4.1=0
 - libtiff=4.0.6=2
 - mkl=11.3.3=0
+- mock=2.0.0=py27_0
+- nose=1.3.7=py27_1
 - numpy=1.11.1=py27_0
 - openssl=1.0.2h=1
 - path.py=8.2.1=py27_0
 - pathlib2=2.1.0=py27_0
+- pbr=1.10.0=py27_0
 - pexpect=4.0.1=py27_0
 - pickleshare=0.7.3=py27_0
 - pip=8.1.2=py27_0
@@ -34,11 +41,15 @@ dependencies:
 - prompt_toolkit=1.0.3=py27_0
 - psycopg2=2.6.1=py27_1
 - ptyprocess=0.5.1=py27_0
+- py=1.4.31=py27_0
 - pygments=2.1.3=py27_0
+- pytest=2.9.2=py27_0
 - python=2.7.12=1
 - pyyaml=3.11=py27_4
 - readline=6.2=2
 - requests=2.11.1=py27_0
+- responses=0.5.1=py27_0
+- setuptools=25.1.6=py27_0
 - simplegeneric=0.8.1=py27_1
 - six=1.10.0=py27_0
 - sqlite=3.13.0=0
@@ -51,10 +62,13 @@ dependencies:
 - zlib=1.2.8=3
 - pip:
   - backports.shutil-get-terminal-size==1.0.0
+  - coverage==4.2
   - geojson==1.3.2
   - ipython-genutils==0.1.0
   - prompt-toolkit==1.0.3
   - pymlconf==0.3.9
+  - pytest-cov==2.3.1
+  - pytest-django==2.9.1
   - wheel==0.22.0
 prefix: /media/shared/conda/envs/map_matching_visualizer
 
