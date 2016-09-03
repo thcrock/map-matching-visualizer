@@ -4,12 +4,14 @@ from django.utils.safestring import mark_safe
 import geojson
 from cta_dump_viewer.models import Reading
 import core.matchers.osrm
+import core.matchers.sample_osrm
 import core.way_queriers.all
 import core.way_queriers.fewest_nodes
 
 
 AVAILABLE_MATCHERS = {
-    'osrm': core.matchers.osrm.OsrmMatcher
+    'osrm': core.matchers.osrm.OsrmMatcher,
+    'sample': core.matchers.sample_osrm.SampleOsrmMatcher
 }
 
 AVAILABLE_WAY_QUERIERS = {
@@ -56,7 +58,7 @@ def build_snapped_feature(way_id, snapped_points, indices):
 
 def index(request):
     raw_points = points(48661914)
-    matcher = AVAILABLE_MATCHERS['osrm'](raw_points)
+    matcher = AVAILABLE_MATCHERS['sample'](raw_points)
     snapped_points = matcher.snapped_points()
     node_pairs = matcher.generate_node_pairs()
 
