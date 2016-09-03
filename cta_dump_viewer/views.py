@@ -7,6 +7,7 @@ import core.matchers.osrm
 import core.matchers.sample_osrm
 import core.way_queriers.all
 import core.way_queriers.fewest_nodes
+import core.way_queriers.sample
 
 
 AVAILABLE_MATCHERS = {
@@ -16,7 +17,8 @@ AVAILABLE_MATCHERS = {
 
 AVAILABLE_WAY_QUERIERS = {
     'all': core.way_queriers.all.AllWayQuerier,
-    'fewest_nodes': core.way_queriers.fewest_nodes.FewestNodesWayQuerier
+    'fewest_nodes': core.way_queriers.fewest_nodes.FewestNodesWayQuerier,
+    'sample': core.way_queriers.sample.SampleWayQuerier
 }
 
 
@@ -62,7 +64,7 @@ def index(request):
     snapped_points = matcher.snapped_points()
     node_pairs = matcher.generate_node_pairs()
 
-    way_querier = AVAILABLE_WAY_QUERIERS['fewest_nodes'](node_pairs)
+    way_querier = AVAILABLE_WAY_QUERIERS['sample'](node_pairs)
     way_lookup = way_querier.way_lookup()
 
     raw_features = geojson.FeatureCollection([
