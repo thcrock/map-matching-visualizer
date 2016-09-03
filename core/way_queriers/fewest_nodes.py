@@ -26,7 +26,6 @@ order by n1, n2, array_length(nodes, 0) desc
         cursor = connection.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
-        print len(rows)
         return [OsmWay(row[1], row[2], row[3], row[0]) for row in rows]
 
     def _generate_ways_nodes(self):
