@@ -57,45 +57,51 @@
 
 		function highlightWay(e) {
 			var layer = e.target;
-			var currentWayId = layer.feature.properties.way_id;
+			var indices = layer.feature.properties.raw_indices;
 
-			var raw = rawLookupLayer[currentWayId];
-			var snapped = snappedLookupLayer[currentWayId];
-			var way = wayLookupLayer[currentWayId];
-
-			way.setStyle({
-				"color": "#0000FF",
-				"weight": 5,
-				"opacity": 1.0
-			});
-			info.update(way.feature.properties);
-			raw.setStyle({
-				"color": "#000000",
-				"weight": 10,
-				"opacity": 1.0
-			});
-			snapped.setStyle({
-				"color": "#FF0000",
-				"weight": 10,
-				"opacity": 1.0
-			});
-			if (!L.Browser.ie && !L.Browser.opera) {
-				way.bringToFront();
-				raw.bringToFront();
-				snapped.bringToFront();
-				layer.bringToFront();
+			for (var i = 0; i < indices.length; i++) {
+				var raw = rawLookupLayer[indices[i]];
+				var snapped = snappedLookupLayer[indices[i]];
+				var way = wayLookupLayer[indices[i]];
+				way.setStyle({
+					"color": "#0000FF",
+					"weight": 5,
+					"opacity": 1.0
+				});
+				info.update(way.feature.properties);
+				raw.setStyle({
+					"color": "#000000",
+					"weight": 10,
+					"opacity": 1.0
+				});
+				snapped.setStyle({
+					"color": "#FF0000",
+					"weight": 10,
+					"opacity": 1.0
+				});
+				if (!L.Browser.ie && !L.Browser.opera) {
+					way.bringToFront();
+					raw.bringToFront();
+					snapped.bringToFront();
+					layer.bringToFront();
+				}
 			}
 		}
 		function resetHighlight(e) {
 			var layer = e.target;
-			var currentWayId = layer.feature.properties.way_id;
-			wayLayer.resetStyle(wayLookupLayer[currentWayId]);
-			rawLayer.resetStyle(rawLookupLayer[currentWayId]);
-			snappedLayer.resetStyle(snappedLookupLayer[currentWayId]);
+			var indices = layer.feature.properties.raw_indices;
+			for (var i = 0; i < indices.length; i++) {
+				wayLayer.resetStyle(wayLookupLayer[indices[i]]);
+				rawLayer.resetStyle(rawLookupLayer[indices[i]]);
+				snappedLayer.resetStyle(snappedLookupLayer[indices[i]]);
+			}
 			info.update();
 		}
 		function onEachWayFeature(feature, layer) {
-			wayLookupLayer[feature.properties.way_id] = layer;
+			var indices = feature.properties.raw_indices;
+			for (var i = 0; i < indices.length; i++) {
+				wayLookupLayer[indices[i]] = layer;
+			}
 			layer.on({
 				mouseover: highlightWay,
 				mouseout: resetHighlight
@@ -103,7 +109,10 @@
 		}
 
 		function onEachRawFeature(feature, layer) {
-			rawLookupLayer[feature.properties.way_id] = layer;
+			var indices = feature.properties.raw_indices;
+			for (var i = 0; i < indices.length; i++) {
+				rawLookupLayer[indices[i]] = layer;
+			}
 			layer.on({
 				mouseover: highlightWay,
 				mouseout: resetHighlight
@@ -111,7 +120,10 @@
 		}
 
 		function onEachSnappedFeature(feature, layer) {
-			snappedLookupLayer[feature.properties.way_id] = layer;
+			var indices = feature.properties.raw_indices;
+			for (var i = 0; i < indices.length; i++) {
+				snappedLookupLayer[indices[i]] = layer;
+			}
 			layer.on({
 				mouseover: highlightWay,
 				mouseout: resetHighlight
@@ -161,15 +173,19 @@
 				},
 				onEachFeature: onEachSnappedFeature
 			}).addTo(mymap);
-			var snappedLineGeojson = {{snappedline_geojson}}
-			var snappedLineStyle = {
-				"color": "#FF0000",
+
+			var couplingGeojson = {{coupling_geojson}}
+			var couplingStyle = {
+				"color": "#333333",
 				"weight": 1,
-				"opacity": 1.0
+				"opacity": 0.8,
+				"dashArray": '5,4',
+				"lineJoin": 'round'
 			};
-			L.geoJson(snappedLineGeojson, {
-				style: snappedLineStyle
+			L.geoJson(couplingGeojson, {
+				style: couplingStyle
 			}).addTo(mymap);
+
 			var waysGeojson = {{ways_geojson}};
 			var waysStyle = {
 				"color": "#0000FF",

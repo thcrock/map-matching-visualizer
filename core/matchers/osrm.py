@@ -47,10 +47,9 @@ class OsrmMatcher(BaseMatcher):
 
     def snapped_points(self):
         return [
-            tracepoint['location']
+            tracepoint.get('location') if tracepoint else None
             for tracepoint
             in self.output['tracepoints']
-            if tracepoint
         ]
 
     def _generate_nodes(self):
