@@ -50,11 +50,13 @@ def build_raw_feature(raw_point, index):
     )
 
 
-def build_snapped_feature(snapped_point, index):
+def build_snapped_feature(snapped_point, index, name, nodes):
     return geojson.Feature(
         geometry=geojson.Point(snapped_point),
         properties={
-            'raw_indices': [index]
+            'raw_indices': [index],
+            'name': name,
+            'nodes': nodes
         }
     )
 
@@ -71,6 +73,7 @@ def index(request):
     raw_points = points(48661914)
     matcher = AVAILABLE_MATCHERS['osrm'](raw_points)
     snapped_points = matcher.snapped_points()
+    snapped_names = matcher.snapped_names()
     node_pairs = matcher.generate_node_pairs()
 
     way_querier = AVAILABLE_WAY_QUERIERS['fewest_nodes'](node_pairs)
@@ -81,7 +84,12 @@ def index(request):
         for index, raw_point in enumerate(raw_points)
     ])
     snapped_features = geojson.FeatureCollection([
-        build_snapped_feature(snapped_point, index)
+        build_snapped_feature(
+            snapped_point,
+            index,
+            snapped_names[index],
+            matcher.tracepoint_nodes(index)
+        )
         for index, snapped_point in enumerate(snapped_points)
         if snapped_point
     ])

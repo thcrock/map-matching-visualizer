@@ -68,7 +68,6 @@
 					"weight": 5,
 					"opacity": 1.0
 				});
-				info.update(way.feature.properties);
 				raw.setStyle({
 					"color": "#000000",
 					"weight": 10,
@@ -79,6 +78,10 @@
 					"weight": 10,
 					"opacity": 1.0
 				});
+				info.update(
+					way.feature.properties,
+					snapped.feature.properties
+				);
 				if (!L.Browser.ie && !L.Browser.opera) {
 					way.bringToFront();
 					raw.bringToFront();
@@ -206,10 +209,22 @@
 			};
 
 			// method that we will use to update the control based on feature properties passed
-			info.update = function (props) {
-				this._div.innerHTML = '<h4>Way Info</h4>' +  (props ?
-						'Tags: ' + props.tags + '<br />Way id: ' + props.way_id + '<br />Nodes: ' + props.node_ids.length
-					: 'Hover over a way');
+			info.update = function (wayProps, nodeProps) {
+				var nodeInfo = (nodeProps ?
+						'Trace index: ' + nodeProps.raw_indices[0] + '<br />' +
+						'<h4>Snapped node</h4>' +
+						'Name: ' + nodeProps.name + '<br />' +
+						'Nodes: ' + nodeProps.nodes + '<br />'
+						: '');
+
+				var wayInfo = (wayProps ?
+						'<h4>Way Info</h4>Tags: ' + wayProps.tags + '<br />Way id: ' + wayProps.way_id + '<br />Nodes: ' + wayProps.node_ids.length : '');
+
+				if(!nodeProps && !wayProps) {
+					this._div.innerHTML = '<h4>Hover for info</h4>';
+				} else {
+					this._div.innerHTML = nodeInfo + wayInfo;
+				}
 			};
 
 			info.addTo(mymap);

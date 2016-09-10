@@ -52,6 +52,30 @@ class OsrmMatcher(BaseMatcher):
             in self.output['tracepoints']
         ]
 
+    def snapped_names(self):
+        return [
+            tracepoint.get('name') if tracepoint else None
+            for tracepoint
+            in self.output['tracepoints']
+        ]
+
+    def tracepoint_nodes(self, tracepoint_index):
+        node_lookup = set()
+        nodes = []
+        tracepoint = self.output['tracepoints'][tracepoint_index]
+        if tracepoint:
+            legs = self.output['matchings'][tracepoint['matchings_index']]['legs']
+            if len(legs) == tracepoint['waypoint_index']:
+                return []
+            leg = legs[tracepoint['waypoint_index']]
+            for node in leg['annotation']['nodes']:
+                if node not in node_lookup:
+                    node_lookup.add(node)
+                    nodes.append(node)
+            return nodes
+        else:
+            return []
+
     def _generate_nodes(self):
         node_lookup = set()
         nodes = []
