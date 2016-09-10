@@ -35,45 +35,55 @@ def build_way_feature(way_id, rows, lookup_data):
         properties={
             'node_ids': [row['node_id'] for row in rows],
             'way_id': way_id,
-            'tags': lookup_data.tags
+            'tags': lookup_data.tags,
+            'raw_indices': lookup_data.raw_indices
         }
     )
 
 
-def build_raw_feature(way_id, raw_points, raw_indices):
+def build_raw_feature(raw_point, index):
     return geojson.Feature(
-        geometry=geojson.MultiPoint([raw_points[i] for i in raw_indices]),
+        geometry=geojson.Point(raw_point),
         properties={
-            'way_id': way_id
+            'raw_indices': [index]
         }
     )
 
 
-def build_snapped_feature(way_id, snapped_points, indices):
+def build_snapped_feature(snapped_point, index):
     return geojson.Feature(
-        geometry=geojson.MultiPoint([snapped_points[i] for i in indices]),
+        geometry=geojson.Point(snapped_point),
         properties={
-            'way_id': way_id
+            'raw_indices': [index]
         }
     )
+
+
+def build_coupling_lines(raw_points, snapped_points):
+    return geojson.GeometryCollection([
+        geojson.LineString([raw_point, snapped_point])
+        for raw_point, snapped_point in zip(raw_points, snapped_points)
+        if snapped_point
+    ])
 
 
 def index(request):
     raw_points = points(48661914)
-    matcher = AVAILABLE_MATCHERS['sample'](raw_points)
+    matcher = AVAILABLE_MATCHERS['osrm'](raw_points)
     snapped_points = matcher.snapped_points()
     node_pairs = matcher.generate_node_pairs()
 
-    way_querier = AVAILABLE_WAY_QUERIERS['sample'](node_pairs)
+    way_querier = AVAILABLE_WAY_QUERIERS['fewest_nodes'](node_pairs)
     way_lookup = way_querier.way_lookup()
 
     raw_features = geojson.FeatureCollection([
-        build_raw_feature(way_id, raw_points, way.raw_indices)
-        for way_id, way in way_lookup.iteritems()
+        build_raw_feature(raw_point, index)
+        for index, raw_point in enumerate(raw_points)
     ])
     snapped_features = geojson.FeatureCollection([
-        build_snapped_feature(way_id, snapped_points, way.raw_indices)
-        for way_id, way in way_lookup.iteritems()
+        build_snapped_feature(snapped_point, index)
+        for index, snapped_point in enumerate(snapped_points)
+        if snapped_point
     ])
     way_features = geojson.FeatureCollection([
         build_way_feature(way_id, data, way_lookup[way_id])
@@ -86,7 +96,7 @@ def index(request):
             'raw_geojson': mark_safe(raw_features),
             'rawline_geojson': mark_safe(geojson.LineString(raw_points)),
             'snapped_geojson': mark_safe(snapped_features),
-            'snappedline_geojson': mark_safe(geojson.LineString(snapped_points)),
+            'coupling_geojson': mark_safe(build_coupling_lines(raw_points, snapped_points)),
             'ways_geojson': mark_safe(way_features)
         })
     )
