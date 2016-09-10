@@ -63,11 +63,13 @@
 				var raw = rawLookupLayer[indices[i]];
 				var snapped = snappedLookupLayer[indices[i]];
 				var way = wayLookupLayer[indices[i]];
-				way.setStyle({
-					"color": "#0000FF",
-					"weight": 5,
-					"opacity": 1.0
-				});
+				if(way) {
+					way.setStyle({
+						"color": "#0000FF",
+						"weight": 5,
+						"opacity": 1.0
+					});
+				}
 				raw.setStyle({
 					"color": "#000000",
 					"weight": 10,
@@ -78,12 +80,21 @@
 					"weight": 10,
 					"opacity": 1.0
 				});
-				info.update(
-					way.feature.properties,
-					snapped.feature.properties
-				);
+				if(way) {
+					info.update(
+						way.feature.properties,
+						snapped.feature.properties
+					);
+				} else {
+					info.update(
+						undefined,
+						snapped.feature.properties
+					);
+				}
 				if (!L.Browser.ie && !L.Browser.opera) {
-					way.bringToFront();
+					if(way) {
+						way.bringToFront();
+					}
 					raw.bringToFront();
 					snapped.bringToFront();
 					layer.bringToFront();
@@ -94,9 +105,14 @@
 			var layer = e.target;
 			var indices = layer.feature.properties.raw_indices;
 			for (var i = 0; i < indices.length; i++) {
-				wayLayer.resetStyle(wayLookupLayer[indices[i]]);
-				rawLayer.resetStyle(rawLookupLayer[indices[i]]);
-				snappedLayer.resetStyle(snappedLookupLayer[indices[i]]);
+				var raw = rawLookupLayer[indices[i]];
+				var snapped = snappedLookupLayer[indices[i]];
+				var way = wayLookupLayer[indices[i]];
+				if(way) {
+					wayLayer.resetStyle(way);
+				}
+				rawLayer.resetStyle(raw);
+				snappedLayer.resetStyle(snapped);
 			}
 			info.update();
 		}
@@ -198,7 +214,12 @@
 			wayLayer = L.geoJson(waysGeojson, {
 				style: waysStyle,
 				onEachFeature: onEachWayFeature
-			}).addTo(mymap);
+			})
+
+			var layerMaps = {
+				"Ways": wayLayer
+			};
+			L.control.layers({}, layerMaps).addTo(mymap);
 
 			info = L.control();
 
