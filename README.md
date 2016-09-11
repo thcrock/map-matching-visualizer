@@ -15,17 +15,7 @@ Due to these problems, I decided to create a new project to visualize the result
 
 ## Setup
 ### I want to do frontend development/visualization
-Although there are many data dependencies currently baked into the implementation, there is a matcher and way querier class that removes dependence on a database and OSRM instance. Open up `cta_dump_viewer/views.py`. One line in the index method will look something like this:
-
-`matcher = AVAILABLE_MATCHERS['sample'](raw_points)`
-
-The matcher used should be 'sample'.
-
-Similarly, another line should look something like this:
-
-`way_querier = AVAILABLE_WAY_QUERIERS['sample'](node_pairs)`
-
-This, again, should refer to 'sample'.
+Although there are many data dependencies currently baked into the implementation, there is a matcher and way querier class that removes dependence on a database and OSRM instance. Open up `cta_dump_viewer/views.py`. At the top, change the MATCHER and WAY_QUERIER variables to 'sample'.
 
 The code dependencies here are managed with Anaconda (for now). The env file is in environment.yml, so after installing Anaconda you can create the environment this way:
 
@@ -53,14 +43,14 @@ Matchers are located in core/matchers and inherit from the BaseMatcher base clas
 
 Unit Tests for new matchers are appreciated (see core/matchers/test_osrm.py, for example)
 
-To test out a new matcher on the CTA Dump Viewer page, add it to cta_dump_viewer/views.py#AVAILABLE_MATCHERS, and then you can reference it from the index method in the same file.
+To test out a new matcher on the CTA Dump Viewer page, add it to cta_dump_viewer/views.py#AVAILABLE_MATCHERS, and then you can reference it from MATCHER
 
 ### Writing a new way querier
 Way Queriers are located in core/way_queriers and inherit from the BaseWayQuerier base class. A new way querier needs to implement two methods:
 * _generate_ways - Use self.node_pairs and return a list of OSM ways
 * _generate_ways_nodes - Use self.ways and return a dict of coordinates that makes up the way's shape (used for visualization)
 
-To test out a new way querier on the CTA Dump Viewer page, add it to cta_dump_viewer/views.py#AVAILABLE_WAY_QUERIERS, and then you can reference it from the index method in the same file.
+To test out a new way querier on the CTA Dump Viewer page, add it to cta_dump_viewer/views.py#AVAILABLE_WAY_QUERIERS, and then you can reference it from WAY_QUERIER
 
 ### Running tests
 py.test is used, so once you activate the environment you can just run:
